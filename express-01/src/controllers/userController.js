@@ -2,24 +2,44 @@ import { userService } from "../services/index.js";
 
 const getUsers = async (req, res) => {
   const users = await userService.getAllUsers();
-  return res.send(users);
+  return res.status(200).send(users);
 };
 
 const getUser = async (req, res) => {
   const user = await userService.getUserById(req.params.userId);
-  return res.send(user);
+  if (!user) {
+    return res.status(404).send();
+  }
+  return res.status(200).send(user);
 };
 
-const createUser = (req, res) => {
-  return res.send("POST HTTP method on user resource");
+const createUser = async (req, res) => {
+  const { username, email } = req.body || {};
+  const user = await userService.createUser({
+    username,
+    email,
+  });
+  return res.status(201).send(user);
 };
 
-const updateUser = (req, res) => {
-  return res.send(`PUT HTTP method on user/${req.params.userId} resource`);
+const updateUser = async (req, res) => {
+  const { username, email } = req.body || {};
+  const user = await userService.updateUser(req.params.userId, {
+    username,
+    email,
+  });
+  if (!user) {
+    return res.status(404).send();
+  }
+  return res.status(200).send(user);
 };
 
-const deleteUser = (req, res) => {
-  return res.send(`DELETE HTTP method on user/${req.params.userId} resource`);
+const deleteUser = async (req, res) => {
+  const isDeleted = await userService.deleteUser(req.params.userId);
+  if (!isDeleted) {
+    return res.status(404).send();
+  }
+  return res.status(204).send();
 };
 
 export default {
